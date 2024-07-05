@@ -41,6 +41,11 @@ struct DetailView: View {
 
             RatingView(rating: .constant(book.rating))
                 .font(.largeTitle)
+            
+            Text("Added on \(formattedDate(book.date))")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                            .padding(.top, 10)
         }
         .navigationTitle(book.title)
         .navigationBarTitleDisplayMode(.inline)
@@ -62,6 +67,13 @@ struct DetailView: View {
         modelContext.delete(book)
         dismiss()
     }
+    
+    func formattedDate(_ date: Date) -> String {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            formatter.timeStyle = .short
+            return formatter.string(from: date)
+        }
 }
 
 #Preview {
