@@ -11,7 +11,10 @@ import SwiftData
 struct ContentView: View {
     
     @Environment(\.modelContext) var modelContext
-    @Query var books: [Book]
+    @Query(sort: [
+        SortDescriptor(\Book.title),
+        SortDescriptor(\Book.author)
+    ]) var books: [Book]
 
     @State private var showingAddScreen = false
     
@@ -19,7 +22,7 @@ struct ContentView: View {
         NavigationView {
             List {
                 ForEach(books) { book in
-                    NavigationLink(value: book) {
+                    NavigationLink(destination: DetailView(book: book)) {
                         HStack {
                             EmojiRatingView(rating: book.rating)
                                 .font(.largeTitle)
@@ -32,9 +35,7 @@ struct ContentView: View {
                         }
                     }
                 }
-            }
-            .navigationDestination(for: Book.self) { book in
-                DetailView(book: book)
+                .onDelete(perform: deleteBooks)
             }
                .navigationTitle("Bookworm")
                .toolbar {
@@ -43,11 +44,21 @@ struct ContentView: View {
                            showingAddScreen.toggle()
                        }
                    }
+                   ToolbarItem(placement: .topBarLeading) {
+                       EditButton()
+                   }
                }
+        }
                .sheet(isPresented: $showingAddScreen) {
                    AddBookView()
                }
        }
+    
+    func deleteBooks(at offsets: IndexSet) {
+        for offset in offsets {
+            let book = books[offset]
+            modelContext.delete(book)
+        }
     }
 }
 
